@@ -1,0 +1,116 @@
+✅ 1️⃣ List authors who have written more than one book in the Drama genre.
+sql
+Copy
+Edit
+SELECT a.Author_Name, COUNT(b.Book_No) AS Drama_Books
+FROM Author a
+JOIN Author_Book_Relationship abr ON a.Author_ID = abr.Author_ID
+JOIN Book b ON abr.Book_No = b.Book_No
+WHERE b.Genre = 'Drama'
+GROUP BY a.Author_ID, a.Author_Name
+HAVING COUNT(b.Book_No) > 1;
+✅ 2️⃣ Find all books that contain characters aged below 18 and above 50 in the same book.
+sql
+Copy
+Edit
+SELECT b.Book_Name
+FROM Book b
+JOIN Book_Character_Relationship bcr ON b.Book_No = bcr.Book_No
+JOIN Characters c1 ON bcr.Character_ID = c1.Character_ID
+WHERE c1.Age < 18
+AND EXISTS (
+    SELECT 1
+    FROM Book_Character_Relationship bcr2
+    JOIN Characters c2 ON bcr2.Character_ID = c2.Character_ID
+    WHERE bcr2.Book_No = b.Book_No AND c2.Age > 50
+)
+GROUP BY b.Book_No, b.Book_Name;
+✅ 3️⃣ Get the names of authors who have never written a book in English.
+sql
+Copy
+Edit
+SELECT a.Author_Name
+FROM Author a
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Author_Book_Relationship abr
+    JOIN Book b ON abr.Book_No = b.Book_No
+    WHERE abr.Author_ID = a.Author_ID AND b.Language = 'English'
+);
+✅ 4️⃣ Find the book with the maximum number of characters and list its name and character count.
+sql
+Copy
+Edit
+SELECT b.Book_Name, COUNT(bcr.Character_ID) AS Character_Count
+FROM Book b
+JOIN Book_Character_Relationship bcr ON b.Book_No = bcr.Book_No
+GROUP BY b.Book_No, b.Book_Name
+ORDER BY Character_Count DESC
+LIMIT 1;
+✅ 5️⃣ List all books that have at least one character whose age is unknown (NULL).
+sql
+Copy
+Edit
+SELECT DISTINCT b.Book_Name
+FROM Book b
+JOIN Book_Character_Relationship bcr ON b.Book_No = bcr.Book_No
+JOIN Characters c ON bcr.Character_ID = c.Character_ID
+WHERE c.Age IS NULL;
+✅ 6️⃣ Find all authors who have the highest number of awards and list the count of their books.
+sql
+Copy
+Edit
+SELECT a.Author_Name, COUNT(abr.Book_No) AS Book_Count
+FROM Author a
+JOIN Author_Book_Relationship abr ON a.Author_ID = abr.Author_ID
+WHERE a.No_Of_Awards = (SELECT MAX(No_Of_Awards) FROM Author WHERE No_Of_Awards IS NOT NULL)
+GROUP BY a.Author_ID, a.Author_Name;
+✅ 7️⃣ List all books where all the characters are older than 20.
+sql
+Copy
+Edit
+SELECT b.Book_Name
+FROM Book b
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Book_Character_Relationship bcr
+    JOIN Characters c ON bcr.Character_ID = c.Character_ID
+    WHERE bcr.Book_No = b.Book_No AND c.Age <= 20
+);
+✅ 8️⃣ Show the countries of publishers who have published at least one book in both Bangla and English.
+Assuming we add a Publisher_ID column in Book, but you can still study the logic:
+
+sql
+Copy
+Edit
+SELECT p.Country
+FROM Publisher p
+JOIN Book b ON p.Publisher_ID = b.Publisher_ID
+GROUP BY p.Publisher_ID, p.Country
+HAVING SUM(b.Language = 'Bangla') > 0 AND SUM(b.Language = 'English') > 0;
+✅ 9️⃣ Find books that share at least two common characters with any other book.
+sql
+Copy
+Edit
+SELECT DISTINCT b1.Book_Name
+FROM Book_Character_Relationship bcr1
+JOIN Book_Character_Relationship bcr2 
+    ON bcr1.Character_ID = bcr2.Character_ID AND bcr1.Book_No <> bcr2.Book_No
+JOIN Book b1 ON bcr1.Book_No = b1.Book_No
+GROUP BY b1.Book_No, b1.Book_Name, bcr2.Book_No
+HAVING COUNT(DISTINCT bcr1.Character_ID) >= 2;
+✅ 🔟 List books that contain a character who also appears in a book written by an author who has more than 40 awards.
+sql
+Copy
+Edit
+SELECT DISTINCT b.Book_Name
+FROM Book b
+JOIN Book_Character_Relationship bcr ON b.Book_No = bcr.Book_No
+WHERE bcr.Character_ID IN (
+    SELECT bcr2.Character_ID
+    FROM Book_Character_Relationship bcr2
+    JOIN Book b2 ON bcr2.Book_No = b2.Book_No
+    JOIN Author_Book_Relationship abr ON b2.Book_No = abr.Book_No
+    JOIN Author a ON abr.Author_ID = a.Author_ID
+    WHERE a.No_Of_Awards > 40
+);
