@@ -1,0 +1,12 @@
+; R0 = i, R1 = sum
+  MOV	R0, #1		; i = 1
+  MOV	R1, #0		; sum = 0
+
+FOR
+  CMP R0, #10		; R0-10
+  BEQ DONE		; if (i==10) 				; exit loop
+  ADD R1, R1, R0	; sum=sum + i
+  ADD R0, R0, #1	; i = i + 1
+  B   FOR		; repeat loop
+
+DONE

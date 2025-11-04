@@ -1,0 +1,13 @@
+0x94 FACTORIAL  STR R0, [SP, #-4]! 	
+0x98            STR LR, [SP, #-4]! 	
+0x9C            CMP R0, #2		
+0xA0            BHS ELSE		
+0xA4            MOV R0, #1		
+0xA8            ADD SP, SP, #8	
+0xAC            MOV PC, LR		
+0xB0 ELSE       SUB R0, R0, #1	
+0xB4		 BL  FACTORIAL      	
+0xB8            LDR LR, [SP], #4	
+0xBC            LDR R1, [SP], #4	
+0xC0            MUL R0, R1, R0	
+0xC4            MOV PC, LR

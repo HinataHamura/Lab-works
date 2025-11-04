@@ -1,0 +1,76 @@
+MAIN
+  ; R4 = y
+  MOV R0, #2      ; arg 0 = f = 2
+  MOV R1, #3      ; arg 1 = g = 3
+  MOV R2, #4      ; arg 2 = h = 4
+  MOV R3, #5      ; arg 3 = i = 5
+  BL DIFFOFSUMS   ; call function
+  MOV R4, R0   ; y = returned value
+  ; R4 = result
+  B STOP
+
+DIFFOFSUMS
+  ADD R8, R0, R1  ; R8 = f + g
+  ADD R9, R2, R3  ; R9 = h + i
+  SUB R4, R8, R9  
+  ; result = (f + g) - (h + i)
+  
+  MOV R0, R4   
+  ; put return value in R0
+  MOV PC, LR         
+  ; return to caller
+
+STOP  
+  B  STOP    
+
+  END	;End of the program
+
+
+
+
+DIFFOFSUMS
+  ; Save R4, R8, R9 in Stack
+  SUB SP, SP, #12
+  STR R4, [SP, #-8]
+  STR R8, [SP, #-4]
+  STR R9, [SP]  
+  
+  ADD R8, R0, R1 ; R8 = f + g
+  ADD R9, R2, R3 ; R9 = h + i
+  SUB R4, R8, R9 
+  ; result = (f + g) - (h + i)
+  MOV R0, R4  
+  ; put return value in R0
+  
+  ; Retrieve R4, R8, R9 in Stack
+  LDR R9, [SP]  
+  LDR R8, [SP, #-4]
+  LDR R4, [SP, #-8]
+  ADD SP, SP, #12
+  MOV PC, LR  ; return to caller
+
+STOP  
+  B  STOP    
+
+  END	;End of the program
+
+
+
+
+DIFFOFSUMS
+  PUSH {R4,  R8, R9}  
+  ADD R8, R0, R1 ; R8 = f + g
+  ADD R9, R2, R3 ; R9 = h + i
+  SUB R4, R8, R9 
+  ; result = (f + g) - (h + i)
+  MOV R0, R4  
+  ; put return value in R0
+  
+  POP {R4,  R8, R9}
+  MOV PC, LR  ; return to caller
+
+STOP  
+  B  STOP    
+
+  END	;End of the program
+

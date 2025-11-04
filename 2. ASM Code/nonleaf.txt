@@ -1,0 +1,28 @@
+; R0=a, R1=b, R4=i, R5=x
+F1
+  PUSH {R4,  R5, LR} ; save regs
+  ADD   R5,  R0, R1  ; x = (a+b)
+  SUB   R12, R0, R1  ; temp = (a-b)
+  MUL   R5,  R5, R12 ; x = x*temp
+  MOV   R4,  #0      ; i = 0
+FOR
+  CMP   R4, R0       ; i < a?
+  BGE   RETURN       ; no: exit loop
+  PUSH {R0, R1}      ; save regs
+  ADD   R0, R1, R4   ; arg is b+i
+  BL    F2           ; call f2(b+i)
+  ADD   R5, R5, R0   ; x = x+f2(b+i)
+  POP  {R0, R1}      ; restore regs
+  ADD   R4, R4, #1   ; i++
+  B     FOR          ; repeat loop
+RETURN
+  MOV   R0, R5       ; return x
+  POP  {R4, R5, LR}  ; restore regs
+  MOV   PC, LR       ; return
+; R0=p, R4=r
+F2
+  PUSH {R4}         ; save regs
+  ADD   R4, R0, 5   ; r = p+5
+  ADD   R0, R4, R0  ; return r+p
+  POP  {R4}         ; restore regs
+  MOV   PC, LR      ; return
